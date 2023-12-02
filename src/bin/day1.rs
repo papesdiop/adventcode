@@ -1,9 +1,9 @@
-use day1::*;
+use adventcode::{read_input, module_day1::*};
 
 /// puzzle answer was 232.
 /// puzzle answer was 1783.
 fn main() {
-    let content = read_input(&"input1.txt".to_owned());
+    let content = read_input(&"data/input1.txt".to_owned());
     let content = match content {
         Ok(content) => content,
         Err(_) => panic!("Error reading input!"),
@@ -18,12 +18,14 @@ fn main() {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests_day1 {
+
+
     use crate::{find_basement_pos, find_floor, read_input};
 
     #[test]
     fn should_able_to_read_file() {
-        let content = read_input(&"input1.txt".to_string()).unwrap();
+        let content = read_input(&"data/input1.txt".to_string()).unwrap();
         assert!(content.len() > 0);
     }
 
