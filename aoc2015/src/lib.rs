@@ -8,6 +8,24 @@ pub fn read_input(path: &String) -> Result<String, String> {
     }
 }
 
+pub mod module_day3 {
+
+    fn houses_count(content: &String) -> Option<i32> {
+        let mut count = 1;
+        let ok=0;
+        for direction in content.chars(){
+            match direction {
+                '>' => {
+                    count+=1;
+                },
+                _  => todo!()
+            }
+        }
+
+        Some(count)
+    }
+}
+
 pub mod module_day2 {
 
     pub struct Dimension {
