@@ -1,4 +1,4 @@
-use adventcode::{read_input, module_day1::*};
+use adventcode::{module_day1::*, read_input};
 
 /// puzzle answer was 232.
 /// puzzle answer was 1783.
@@ -19,7 +19,6 @@ fn main() {
 
 #[cfg(test)]
 mod tests_day1 {
-
 
     use crate::{find_basement_pos, find_floor, read_input};
 

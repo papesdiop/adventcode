@@ -8,6 +8,34 @@ pub fn read_input(path: &String) -> Result<String, String> {
     }
 }
 
+pub mod module_day2 {
+
+    pub struct Dimension {
+        pub length: i32,
+        pub width: i32,
+        pub height: i32,
+    }
+
+    /// returns the total ribbon feet required to wrap a present
+    pub fn ribbon_feet(dim: Dimension) -> Option<i32> {
+        let mut dim_ord = vec![dim.length, dim.width, dim.height];
+        dim_ord.sort();
+        let feet_total = 2 * dim_ord[0] + 2 * dim_ord[1] + dim.length * dim.width * dim.height;
+        Some(feet_total)
+    }
+
+    /// calculate the square feet of box + extra smallest side
+    pub fn square_feet(dim: Dimension) -> Option<i32> {
+        let square_feet =
+            2 * dim.length * dim.width + 2 * dim.width * dim.height + 2 * dim.height * dim.length;
+
+        let mut dim_ord = vec![dim.length, dim.width, dim.height];
+        dim_ord.sort();
+
+        Some(square_feet + dim_ord[0] * dim_ord[1])
+    }
+}
+
 pub mod module_day1 {
 
     /// Santa is trying to deliver presents in a large apartment building, but he can't find the right floor -
