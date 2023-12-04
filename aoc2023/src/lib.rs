@@ -40,8 +40,10 @@ pub mod day_one {
 
         if !letters_sorted.is_empty() {
             let fletter = letters_sorted.first().unwrap().0;
+            let mut freplacer = convert_to_digit(fletter).unwrap().to_string();
+            freplacer.push_str(fletter);
             let lletter = letters_sorted.last().unwrap().0;
-            line = line.replace(fletter, convert_to_digit(fletter).unwrap().to_string().as_str());
+            line = line.replace(fletter, &freplacer.as_str());
             line = line.replace(lletter, convert_to_digit(lletter).unwrap().to_string().as_str());
         }
 

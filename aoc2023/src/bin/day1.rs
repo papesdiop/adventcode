@@ -26,6 +26,20 @@ mod tests_day1 {
 
     ///part2
     #[test]
+    fn test_twone_should_return_21() {
+        let line = "twone".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(21), number)
+    }
+
+    #[test]
+    fn test_eightwo_should_return_82() {
+        let line = "eightwo".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(82), number)
+    }
+
+    #[test]
     fn test_two1nine_should_return_29() {
         let line = "two1nine".to_string();
         let number = replace_letter_by_digit(line);
