@@ -22,7 +22,6 @@ pub mod day_one {
     }
 
     pub fn replace_letter_by_digit(mut line: String) -> Option<i32> {
-        let bkp_line = line.clone();
         let letters = vec![
             "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         ];

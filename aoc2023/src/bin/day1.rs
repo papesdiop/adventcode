@@ -26,6 +26,21 @@ mod tests_day1 {
 
     ///part2
     #[test]
+    fn test_twoneighthree_should_return_23() {
+        let line = "twoneighthree".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(23), number)
+    }
+
+
+    #[test]
+    fn test_threeight_should_return_38() {
+        let line = "threeight".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(38), number)
+    }
+    
+    #[test]
     fn test_twone_should_return_21() {
         let line = "twone".to_string();
         let number = replace_letter_by_digit(line);
