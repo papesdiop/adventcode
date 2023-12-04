@@ -11,8 +11,61 @@ fn main() {
 #[cfg(test)]
 mod tests_day1 {
 
+    use aoc2023::day_one::replace_letter_by_digit;
+
     use crate::extract_digits;
 
+    ///part2
+    #[test]
+    fn test_two1nine_should_return_29() {
+        let line = "two1nine".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(29), number)
+    }
+
+    #[test]
+    fn test_eightwothree_should_return_83() {
+        let line = "eightwothree".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(83), number)
+    }
+
+    #[test]
+    fn test_abcone2threexyz_should_return_13() {
+        let line = "abcone2threexyz".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(13), number)
+    }
+
+    #[test]
+    fn test_xtwone3four_should_return_24() {
+        let line = "xtwone3four".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(24), number)
+    }
+
+    #[test]
+    fn test_4nineeightseven2_should_return_42() {
+        let line = "4nineeightseven2".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(42), number)
+    }
+
+    #[test]
+    fn test_zoneight234_should_return_14() {
+        let line = "zoneight234".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(14), number)
+    }
+
+    #[test]
+    fn test_7pqrstsixteen_should_return_76() {
+        let line = "7pqrstsixteen".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(76), number)
+    }
+
+    ///part1
     #[test]
     fn test_1abc2_should_return_12() {
         let line = "1abc2".to_string();
