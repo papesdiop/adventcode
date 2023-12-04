@@ -1,11 +1,20 @@
-use aoc2023::{day_one::extract_digits, read_input};
+use aoc2023::{
+    day_one::{extract_digits, replace_letter_by_digit},
+    read_input,
+};
 
 fn main() {
-    let sum: i32 = read_input(&"data/input1.txt".to_string())
+    // let sum: i32 = read_input(&"data/input1.txt".to_string())
+    //     .lines()
+    //     .map(|line| extract_digits(line.to_string()).unwrap())
+    //     .sum();
+    // println!("total trebuchet part1 : {}", sum);
+
+    let sum: i32 = read_input(&"data/input1b.txt".to_string())
         .lines()
-        .map(|line| extract_digits(line.to_string()).unwrap())
+        .map(|line| replace_letter_by_digit(line.to_string()).unwrap())
         .sum();
-    println!("total trebuchet : {}", sum);
+    println!("total trebuchet part2 : {}", sum);
 }
 
 #[cfg(test)]
