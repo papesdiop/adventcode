@@ -5,7 +5,6 @@ pub fn read_input(path: &String) -> String {
 }
 
 pub mod day_one {
-    use std::collections::HashMap;
 
     pub fn extract_digits(line: String) -> Option<i32> {
         let digits: Vec<String> = line
@@ -26,31 +25,36 @@ pub mod day_one {
             "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         ];
 
-        let mut letters_map = HashMap::new();
+        let mut letters_vec = Vec::new();
 
+        let line_cp = line.clone();
         for letter in letters {
-            if let Some(index) = line.find(letter) {
-                letters_map.insert(letter, index);
+            for each in line_cp.match_indices(letter) {
+                letters_vec.push(each)
             }
         }
 
-        let mut letters_sorted = Vec::from_iter(letters_map);
-        letters_sorted.sort_by(|&(_, a), &(_, b)| a.cmp(&b));
+        letters_vec.sort_by(|&(a, _), &(b, _)| a.cmp(&b));
+
+        let letters_sorted = letters_vec;
 
         if !letters_sorted.is_empty() {
-            let fletter = letters_sorted.first().unwrap().0;
+            let fletter = letters_sorted.first().unwrap().1;
             let mut freplacer = convert_to_digit(fletter).unwrap().to_string();
             freplacer.push_str(fletter);
-            let lletter = letters_sorted.last().unwrap().0;
-            line = line.replace(fletter, &freplacer.as_str());
-            line = line.replace(lletter, convert_to_digit(lletter).unwrap().to_string().as_str());
+            let lletter = letters_sorted.last().unwrap().1;
+            line = line.replace(fletter, freplacer.as_str());
+            line = line.replace(
+                lletter,
+                convert_to_digit(lletter).unwrap().to_string().as_str(),
+            );
         }
 
         extract_digits(line)
     }
 
     fn convert_to_digit(letter: &str) -> Option<usize> {
-       let number =  match letter {
+        let number = match letter {
             "one" => 1,
             "two" => 2,
             "three" => 3,
@@ -63,7 +67,7 @@ pub mod day_one {
             _ => 0,
         };
         if number != 0 {
-           return Some(number);
+            return Some(number);
         }
         None
     }

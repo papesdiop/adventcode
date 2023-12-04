@@ -4,11 +4,11 @@ use aoc2023::{
 };
 
 fn main() {
-    // let sum: i32 = read_input(&"data/input1.txt".to_string())
-    //     .lines()
-    //     .map(|line| extract_digits(line.to_string()).unwrap())
-    //     .sum();
-    // println!("total trebuchet part1 : {}", sum);
+    let sum: i32 = read_input(&"data/input1.txt".to_string())
+        .lines()
+        .map(|line| extract_digits(line.to_string()).unwrap())
+        .sum();
+    println!("total trebuchet part1 : {}", sum);
 
     let sum: i32 = read_input(&"data/input1b.txt".to_string())
         .lines()
@@ -25,6 +25,42 @@ mod tests_day1 {
     use crate::extract_digits;
 
     ///part2
+
+    #[test]
+    fn test_sixeightoneight_should_return_68() {
+        let line = "sixeightoneight".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(68), number)
+    }
+
+    #[test]
+    fn test_oneoneight_should_return_18() {
+        let line = "oneoneight".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(18), number)
+    }
+
+    #[test]
+    fn test_oneonetwo3one_should_return_11() {
+        let line = "oneonetwo3one".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(11), number)
+    }
+
+    #[test]
+    fn test_sevenfourseven_should_return_77() {
+        let line = "sevenfourseven".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(77), number)
+    }
+
+    #[test]
+    fn test_7one7_should_return_77() {
+        let line = "7one7".to_string();
+        let number = replace_letter_by_digit(line);
+        assert_eq!(Some(77), number)
+    }
+
     #[test]
     fn test_twoneighthree_should_return_23() {
         let line = "twoneighthree".to_string();
@@ -32,14 +68,13 @@ mod tests_day1 {
         assert_eq!(Some(23), number)
     }
 
-
     #[test]
     fn test_threeight_should_return_38() {
         let line = "threeight".to_string();
         let number = replace_letter_by_digit(line);
         assert_eq!(Some(38), number)
     }
-    
+
     #[test]
     fn test_twone_should_return_21() {
         let line = "twone".to_string();
