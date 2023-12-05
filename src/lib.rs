@@ -1,74 +1,101 @@
 use std::fs::read_to_string;
 
-pub fn read_input(path: &String) -> String {
-    read_to_string(path).expect(format!("Error reading file {}", path).as_str())
+/// reads input file and returns content as Result<String, String>
+pub fn read_input(path: &String) -> Result<String, String> {
+    match read_to_string(path) {
+        Ok(line) => Ok(line),
+        Err(_) => Err(format!("Error reading file {}", &path)),
+    }
 }
 
-pub mod day_one {
+pub mod module_day3 {
 
-    pub fn extract_digits(line: String) -> Option<i32> {
-        let digits: Vec<String> = line
-            .chars()
-            .filter(|c| c.is_digit(10))
-            .map(|c| c.to_string())
-            .collect();
-        let first = digits.first();
-        let last = digits.last();
-        if let (Some(first), Some(last)) = (first, last) {
-            return Some(format!("{}{}", first, last).parse::<i32>().unwrap());
-        }
-        None
-    }
-
-    pub fn replace_letter_by_digit(mut line: String) -> Option<i32> {
-        let letters = vec![
-            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-        ];
-
-        let mut letters_vec = Vec::new();
-
-        let line_cp = line.clone();
-        for letter in letters {
-            for each in line_cp.match_indices(letter) {
-                letters_vec.push(each)
+    fn houses_count(content: &String) -> Option<i32> {
+        let mut count = 1;
+        let ok=0;
+        for direction in content.chars(){
+            match direction {
+                '>' => {
+                    count+=1;
+                },
+                _  => todo!()
             }
         }
 
-        letters_vec.sort_by(|&(a, _), &(b, _)| a.cmp(&b));
+        Some(count)
+    }
+}
 
-        let letters_sorted = letters_vec;
+pub mod module_day2 {
 
-        if !letters_sorted.is_empty() {
-            let fletter = letters_sorted.first().unwrap().1;
-            let mut freplacer = convert_to_digit(fletter).unwrap().to_string();
-            freplacer.push_str(fletter);
-            let lletter = letters_sorted.last().unwrap().1;
-            line = line.replace(fletter, freplacer.as_str());
-            line = line.replace(
-                lletter,
-                convert_to_digit(lletter).unwrap().to_string().as_str(),
-            );
-        }
-
-        extract_digits(line)
+    pub struct Dimension {
+        pub length: i32,
+        pub width: i32,
+        pub height: i32,
     }
 
-    fn convert_to_digit(letter: &str) -> Option<usize> {
-        let number = match letter {
-            "one" => 1,
-            "two" => 2,
-            "three" => 3,
-            "four" => 4,
-            "five" => 5,
-            "six" => 6,
-            "seven" => 7,
-            "eight" => 8,
-            "nine" => 9,
-            _ => 0,
-        };
-        if number != 0 {
-            return Some(number);
+    /// returns the total ribbon feet required to wrap a present
+    pub fn ribbon_feet(dim: Dimension) -> Option<i32> {
+        let mut dim_ord = vec![dim.length, dim.width, dim.height];
+        dim_ord.sort();
+        let feet_total = 2 * dim_ord[0] + 2 * dim_ord[1] + dim.length * dim.width * dim.height;
+        Some(feet_total)
+    }
+
+    /// calculate the square feet of box + extra smallest side
+    pub fn square_feet(dim: Dimension) -> Option<i32> {
+        let square_feet =
+            2 * dim.length * dim.width + 2 * dim.width * dim.height + 2 * dim.height * dim.length;
+
+        let mut dim_ord = vec![dim.length, dim.width, dim.height];
+        dim_ord.sort();
+
+        Some(square_feet + dim_ord[0] * dim_ord[1])
+    }
+}
+
+pub mod module_day1 {
+
+    /// Santa is trying to deliver presents in a large apartment building, but he can't find the right floor -
+    /// the directions he got are a little confusing.
+    /// He starts on the ground floor (floor 0) and then follows the instructions one character at a time.
+    /// An opening parenthesis, (, means he should go up one floor, and a closing parenthesis, ), means he should go down one floor.
+    /// The apartment building is very tall, and the basement is very deep; he will never find the top or bottom floors.
+    ///
+    pub fn find_floor(content: &String) -> Option<i32> {
+        let mut floor = 0;
+
+        for c in content.chars() {
+            if c.eq(&'(') {
+                floor += 1;
+            } else {
+                floor -= 1;
+            }
         }
-        None
+
+        return Some(floor);
+    }
+
+    /// Now, given the same instructions, find the position of the first character that causes him to enter the basement (floor -1).
+    /// The first character in the instructions has position 1, the second character has position 2, and so on.
+    pub fn find_basement_pos(content: &String) -> Option<i32> {
+        let mut position: i32 = 0;
+        let mut floor = 0;
+
+        for c in content.chars() {
+            if c.eq(&'(') {
+                floor += 1;
+            } else {
+                floor -= 1;
+            }
+
+            position += 1;
+
+            if floor == -1 {
+                break;
+            }
+        }
+
+        Some(position)
     }
 }
