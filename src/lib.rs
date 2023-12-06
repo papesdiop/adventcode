@@ -1,4 +1,9 @@
+const RED_LIMIT:usize = 12;
+const GREEN_LIMIT:usize = 13;
+const BLUE_LIMIT:usize = 14;
 
+
+#[derive(Debug)]
 pub struct Record {
     red: usize,
     green: usize,
@@ -6,15 +11,16 @@ pub struct Record {
 }
 
 impl Record {
-    fn new() -> Self{
-        Self{
-            red:0,
-            green:0,
-            blue:0,
+    fn new() -> Self {
+        Self {
+            red: 0,
+            green: 0,
+            blue: 0,
         }
     }
 }
 
+#[derive(Debug)]
 pub struct Game {
     id: usize,
     subsets: Vec<Record>,
@@ -22,48 +28,98 @@ pub struct Game {
 
 impl Game {
     fn new() -> Self {
-        Self { id: 0, subsets: vec![] }
+        Self {
+            id: 0,
+            subsets: vec![],
+        }
     }
 }
 
 pub mod day_two {
-    use crate::{Record, Game};
+    use crate::{Game, Record, BLUE_LIMIT, GREEN_LIMIT, RED_LIMIT};
 
-    pub fn get_game(line : &str) -> usize {
-        let game:Vec<&str> = line.split(":").collect();
-        let game_id = game[0].split_ascii_whitespace();
-        let game_id = game_id.last().unwrap().trim().parse::<usize>().expect("Error parsing game id");
-        let subsets: Vec<&str> = game[1].split(";").collect();
+    pub fn get_game(line: &str) -> usize {
+        let mut valid_games = vec![];
+        for line in line.lines() {
+            let game: Vec<&str> = line.split(":").collect();
+            let game_id = game[0].split(" ");
+            let game_id = game_id
+                .last()
+                .unwrap()
+                .trim()
+                .parse::<usize>()
+                .expect("Error parsing game id");
+            let subsets: Vec<&str> = game[1].split(";").collect();
 
-        let mut the_game = Game::new();
+            let mut the_game = Game::new();
 
-        the_game.id = game_id;
+            the_game.id = game_id;
+            
+            let mut is_valid = true;
 
-
-        for record in subsets {
-            let mut record_game = Record::new();
-            for colour in record.split(",").into_iter(){
-                let mut colour = colour.split_ascii_whitespace();
-                if let Some(c) = colour.nth(1) {
-                    match c {
-                        "blue" => record_game.blue = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
-                        "red" => record_game.red = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
-                        "green" => record_game.green = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
-                        _ => panic!(),
+            for record in subsets {
+                let mut record_game = Record::new();
+                for colour in record.trim().split(",").into_iter() {
+                    let mut colour = colour.trim().split(" ");
+                    let colour_cp = colour.clone();
+                    if let Some(c) = colour_cp.last() {
+                        match c {
+                            "blue" => {
+                                record_game.blue = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            "red" => {
+                                record_game.red = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            "green" => {
+                                record_game.green = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            _ => panic!(),
+                        }
                     }
+
+                    if record_game.blue > BLUE_LIMIT || record_game.green > GREEN_LIMIT || record_game.red > RED_LIMIT {
+                        is_valid = false;
+                        break;
+                    }
+
                 }
+                //
+                if !is_valid {
+                    break;
+                }
+
             }
-           //
-            the_game.subsets.push(record_game);
+
+            if is_valid  {
+                valid_games.push(game_id);
+            }
+            
         }
 
-        0
-        
+        //dbg!(&valid_games);
+
+        valid_games.into_iter().sum()
+
     }
 
     fn explore_with_regex() {
         use regex::Regex;
-        let pattern = r"?<game_id>([0-9]{1,3}}: ([0-9]{1,3} [\w]{3,5})+(\;)?"; 
+        let pattern = r"?<game_id>([0-9]{1,3}}: ([0-9]{1,3} [\w]{3,5})+(\;)?";
         let my_regex = Regex::new(pattern);
     }
 }
