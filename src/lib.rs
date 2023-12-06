@@ -1,16 +1,80 @@
-use std::fs::read_to_string;
 
-pub fn read_input(path: &String) -> String {
-    read_to_string(path).expect(format!("Error reading file {}", path).as_str())
+pub struct Record {
+    red: usize,
+    green: usize,
+    blue: usize,
+}
+
+impl Record {
+    fn new() -> Self{
+        Self{
+            red:0,
+            green:0,
+            blue:0,
+        }
+    }
+}
+
+pub struct Game {
+    id: usize,
+    subsets: Vec<Record>,
+}
+
+impl Game {
+    fn new() -> Self {
+        Self { id: 0, subsets: vec![] }
+    }
+}
+
+pub mod day_two {
+    use crate::{Record, Game};
+
+    pub fn get_game(line : &str) -> usize {
+        let game:Vec<&str> = line.split(":").collect();
+        let game_id = game[0].split_ascii_whitespace();
+        let game_id = game_id.last().unwrap().trim().parse::<usize>().expect("Error parsing game id");
+        let subsets: Vec<&str> = game[1].split(";").collect();
+
+        let mut the_game = Game::new();
+
+        the_game.id = game_id;
+
+
+        for record in subsets {
+            let mut record_game = Record::new();
+            for colour in record.split(",").into_iter(){
+                let mut colour = colour.split_ascii_whitespace();
+                if let Some(c) = colour.nth(1) {
+                    match c {
+                        "blue" => record_game.blue = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
+                        "red" => record_game.red = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
+                        "green" => record_game.green = colour.nth(0).unwrap().trim().parse::<usize>().expect("Error parsing colour number."),
+                        _ => panic!(),
+                    }
+                }
+            }
+           //
+            the_game.subsets.push(record_game);
+        }
+
+        0
+        
+    }
+
+    fn explore_with_regex() {
+        use regex::Regex;
+        let pattern = r"?<game_id>([0-9]{1,3}}: ([0-9]{1,3} [\w]{3,5})+(\;)?"; 
+        let my_regex = Regex::new(pattern);
+    }
 }
 
 pub mod day_one {
 
     pub fn extract_digits(line: String) -> Option<i32> {
-        let digits: Vec<String> = line
+        let digits: Vec<char> = line
             .chars()
             .filter(|c| c.is_digit(10))
-            .map(|c| c.to_string())
+            //.map(|c| c.to_string())
             .collect();
         let first = digits.first();
         let last = digits.last();
