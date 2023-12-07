@@ -22,14 +22,14 @@ impl Record {
 #[derive(Debug)]
 pub struct Game {
     id: usize,
-    subsets: Vec<Record>,
+    //subsets: Vec<Record>,
 }
 
 impl Game {
     fn new() -> Self {
         Self {
             id: 0,
-            subsets: vec![],
+            //subsets: vec![],
         }
     }
 }
@@ -37,9 +37,11 @@ impl Game {
 pub mod day_two {
     use crate::{Game, Record, BLUE_LIMIT, GREEN_LIMIT, RED_LIMIT};
 
-    pub fn get_game(line: &str) -> usize {
+    pub fn get_game_part2(line: &str) -> usize {
         let mut valid_games = vec![];
+
         for line in line.lines() {
+            let mut max_game = Record::new();
             let game: Vec<&str> = line.split(":").collect();
             let game_id = game[0].split(" ");
             let game_id = game_id
@@ -54,42 +56,58 @@ pub mod day_two {
 
             the_game.id = game_id;
 
+            for record in subsets {
+                for colour in record.trim().split(",").into_iter() {
+                    let record_game = get_record(colour);
+                    if max_game.blue < record_game.blue {
+                        max_game.blue = record_game.blue;
+                    }
+                    if &max_game.red < &record_game.red {
+                        max_game.red = record_game.red;
+                    }
+                    if &max_game.green < &record_game.green {
+                        max_game.green = record_game.green;
+                    }
+                } //colours of each subset cubes
+            } //game
+
+            valid_games.push(max_game);
+        }
+
+        //dbg!(&valid_games);
+
+        let result: usize = valid_games
+            .iter()
+            .map(|game| game.blue * game.red * game.green)
+            .sum();
+
+        result
+    }
+
+    pub fn get_game(line: &str) -> usize {
+        let mut valid_games = vec![];
+        for line in line.lines() {
+            let game: Vec<&str> = line.split(":").collect(); // [Game 1] [3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green]
+            let game_id = game[0].split(" "); // [Game] [1 ]
+            let game_id = game_id
+                .last() //[1 ]
+                .unwrap()
+                .trim()
+                .parse::<usize>()
+                .expect("Error parsing game id");
+            let subsets: Vec<&str> = game[1].split(";").collect(); // [3 blue, 4 red] [1 red, 2 green, 6 blue] [2 green]
+
+            let mut the_game = Game::new();
+
+            the_game.id = game_id;
+
             let mut is_valid = true;
 
             for record in subsets {
-                let mut record_game = Record::new();
                 for colour in record.trim().split(",").into_iter() {
-                    let mut colour = colour.trim().split(" ");
-                    let colour_cp = colour.clone();
-                    if let Some(c) = colour_cp.last() {
-                        match c {
-                            "blue" => {
-                                record_game.blue = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            "red" => {
-                                record_game.red = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            "green" => {
-                                record_game.green = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            _ => panic!(),
-                        }
-                    }
+                    // [3 blue] [ 4 red]
+
+                    let record_game = get_record(colour); // Record object { blue : 3, red: 4}
 
                     if record_game.blue > BLUE_LIMIT
                         || record_game.green > GREEN_LIMIT
@@ -115,90 +133,47 @@ pub mod day_two {
         valid_games.into_iter().sum()
     }
 
-    pub fn get_game_part2(line: &str) -> usize {
-        let mut valid_games = vec![];
-
-        for line in line.lines() {
-            let mut max_game = Record::new();
-            let game: Vec<&str> = line.split(":").collect();
-            let game_id = game[0].split(" ");
-            let game_id = game_id
-                .last()
-                .unwrap()
-                .trim()
-                .parse::<usize>()
-                .expect("Error parsing game id");
-            let subsets: Vec<&str> = game[1].split(";").collect();
-
-            let mut the_game = Game::new();
-
-            the_game.id = game_id;
-
-            for record in subsets {
-                let mut record_game = Record::new();
-                for colour in record.trim().split(",").into_iter() {
-                    let mut colour = colour.trim().split(" ");
-                    let colour_cp = colour.clone();
-                    if let Some(c) = colour_cp.last() {
-                        match c {
-                            "blue" => {
-                                record_game.blue = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            "red" => {
-                                record_game.red = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            "green" => {
-                                record_game.green = colour
-                                    .next()
-                                    .unwrap()
-                                    .trim()
-                                    .parse::<usize>()
-                                    .expect("Error parsing colour number.")
-                            }
-                            _ => panic!(),
-                        }
-
-                        if max_game.blue < record_game.blue {
-                            max_game.blue = record_game.blue;
-                        }
-                        if &max_game.red < &record_game.red {
-                            max_game.red = record_game.red;
-                        }
-                        if &max_game.green < &record_game.green {
-                            max_game.green = record_game.green;
-                        }
-                    }
-                } //colours of each subset cubes
-            } //game
-
-            valid_games.push(max_game);
+    fn get_record<'a>(colour: &'a str) -> Record {
+        let mut record_game = Record::new();
+        let mut colour = colour.trim().split(" ");
+        let colour_cp = colour.clone();
+        if let Some(c) = colour_cp.last() {
+            match c {
+                "blue" => {
+                    record_game.blue = colour
+                        .next()
+                        .unwrap()
+                        .trim()
+                        .parse::<usize>()
+                        .expect("Error parsing colour number.")
+                }
+                "red" => {
+                    record_game.red = colour
+                        .next()
+                        .unwrap()
+                        .trim()
+                        .parse::<usize>()
+                        .expect("Error parsing colour number.")
+                }
+                "green" => {
+                    record_game.green = colour
+                        .next()
+                        .unwrap()
+                        .trim()
+                        .parse::<usize>()
+                        .expect("Error parsing colour number.")
+                }
+                _ => panic!(),
+            }
         }
-
-        dbg!(&valid_games);
-
-        let result: usize = valid_games
-            .iter()
-            .map(|game| game.blue * game.red * game.green)
-            .sum();
-
-        result
+        record_game
     }
 
-    fn explore_with_regex() {
-        use regex::Regex;
-        let pattern = r"?<game_id>([0-9]{1,3}}: ([0-9]{1,3} [\w]{3,5})+(\;)?";
-        let my_regex = Regex::new(pattern);
-    }
+    // fn explore_with_regex() {
+    //     use regex::Regex;
+    //     let pattern = r"?<game_id>([0-9]{1,3}}: ([0-9]{1,3} [\w]{3,5})+(\;)?";
+    //     let my_regex = Regex::new(pattern);
+    // }
 }
 
 pub mod day_one {
