@@ -1,9 +1,8 @@
-const RED_LIMIT:usize = 12;
-const GREEN_LIMIT:usize = 13;
-const BLUE_LIMIT:usize = 14;
+const RED_LIMIT: usize = 12;
+const GREEN_LIMIT: usize = 13;
+const BLUE_LIMIT: usize = 14;
 
-
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Record {
     red: usize,
     green: usize,
@@ -54,7 +53,7 @@ pub mod day_two {
             let mut the_game = Game::new();
 
             the_game.id = game_id;
-            
+
             let mut is_valid = true;
 
             for record in subsets {
@@ -92,29 +91,107 @@ pub mod day_two {
                         }
                     }
 
-                    if record_game.blue > BLUE_LIMIT || record_game.green > GREEN_LIMIT || record_game.red > RED_LIMIT {
+                    if record_game.blue > BLUE_LIMIT
+                        || record_game.green > GREEN_LIMIT
+                        || record_game.red > RED_LIMIT
+                    {
                         is_valid = false;
                         break;
                     }
-
                 }
                 //
                 if !is_valid {
                     break;
                 }
-
             }
 
-            if is_valid  {
+            if is_valid {
                 valid_games.push(game_id);
             }
-            
         }
 
         //dbg!(&valid_games);
 
         valid_games.into_iter().sum()
+    }
 
+    pub fn get_game_part2(line: &str) -> usize {
+        let mut valid_games = vec![];
+
+        for line in line.lines() {
+            let mut max_game = Record::new();
+            let game: Vec<&str> = line.split(":").collect();
+            let game_id = game[0].split(" ");
+            let game_id = game_id
+                .last()
+                .unwrap()
+                .trim()
+                .parse::<usize>()
+                .expect("Error parsing game id");
+            let subsets: Vec<&str> = game[1].split(";").collect();
+
+            let mut the_game = Game::new();
+
+            the_game.id = game_id;
+
+            for record in subsets {
+                let mut record_game = Record::new();
+                for colour in record.trim().split(",").into_iter() {
+                    let mut colour = colour.trim().split(" ");
+                    let colour_cp = colour.clone();
+                    if let Some(c) = colour_cp.last() {
+                        match c {
+                            "blue" => {
+                                record_game.blue = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            "red" => {
+                                record_game.red = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            "green" => {
+                                record_game.green = colour
+                                    .next()
+                                    .unwrap()
+                                    .trim()
+                                    .parse::<usize>()
+                                    .expect("Error parsing colour number.")
+                            }
+                            _ => panic!(),
+                        }
+
+                        if max_game.blue < record_game.blue {
+                            max_game.blue = record_game.blue;
+                        }
+                        if &max_game.red < &record_game.red {
+                            max_game.red = record_game.red;
+                        }
+                        if &max_game.green < &record_game.green {
+                            max_game.green = record_game.green;
+                        }
+                    }
+                } //colours of each subset cubes
+            } //game
+
+            valid_games.push(max_game);
+        }
+
+        dbg!(&valid_games);
+
+        let result: usize = valid_games
+            .iter()
+            .map(|game| game.blue * game.red * game.green)
+            .sum();
+
+        result
     }
 
     fn explore_with_regex() {
