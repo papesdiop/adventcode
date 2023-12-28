@@ -1,6 +1,4 @@
-const RED_LIMIT: usize = 12;
-const GREEN_LIMIT: usize = 13;
-const BLUE_LIMIT: usize = 14;
+use std::{collections::BTreeMap, ops::Not};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Record {
@@ -20,22 +18,86 @@ impl Record {
 }
 
 #[derive(Debug)]
-pub struct Game {
-    id: usize,
-    //subsets: Vec<Record>,
+pub struct Game<'a> {
+    id: &'a str,
+    rounds: Vec<Vec<Cube<'a>>>,
 }
 
-impl Game {
+impl<'a> Game<'a> {
+    pub fn is_valid_for_cubes(&self, map: &BTreeMap<&str, u32>) -> Option<u32> {
+        self.rounds
+            .iter()
+            .any(|round| {
+                round
+                    .iter()
+                    .any(|cube| cube.amount > *map.get(cube.color).expect("a valide cube"))
+            })
+            .not()
+            .then_some(
+                self.id
+                    .parse::<u32>()
+                    .expect("game id should be parseable u32"),
+            )
+    }
+}
+
+impl<'a> Game<'a> {
     fn new() -> Self {
         Self {
-            id: 0,
-            //subsets: vec![],
+            id: "",
+            rounds: vec![],
         }
     }
 }
 
+#[derive(Debug)]
+pub struct Cube<'a> {
+    color: &'a str,
+    amount: u32,
+}
+
 pub mod day_two {
-    use crate::{Game, Record, BLUE_LIMIT, GREEN_LIMIT, RED_LIMIT};
+    use std::collections::BTreeMap;
+
+    use nom::{
+        bytes::complete::tag,
+        character::complete::{alpha1, digit1, line_ending},
+        multi::separated_list1,
+        sequence::{preceded, separated_pair},
+        IResult,
+    };
+
+    use crate::{Cube, Game, Record,};
+
+    //testing nom crate
+    // Game 1: 20 green, 3 red, 2 blue; 9 red, 16 blue, 18 green; 6 blue, 19 red, 10 green; 12 red, 19 green, 11 blue
+    pub fn parse_input(input: &str) -> IResult<&str, Vec<Game>> {
+        let (input, games) = separated_list1(line_ending, game_parser)(input)?;
+        Ok((input, games))
+    }
+
+    fn game_parser(input: &str) -> IResult<&str, Game> {
+        // 20 green, 3 red, 2 blue; 9 red, 16 blue, 18 green; 6 blue, 19 red, 10 green; 12 red, 19 green, 11 blue // 1
+        let (input, id) = preceded(tag("Game "), digit1)(input)?;
+        // "" // ["20 green, 3 red, 2 blue", "9 red, 16 blue, 18 green", "6 blue, 19 red, 10 green",...]
+        let (input, _) = tag(": ")(input)?;
+        let (input, rounds) = separated_list1(tag("; "), round_parser)(input)?;
+        Ok((input, Game { id, rounds }))
+    }
+
+    //"20 green, 3 red, 2 blue"
+    fn round_parser(input: &str) -> IResult<&str, Vec<Cube>> {
+        let (input, cubes) = separated_list1(tag(", "), cube_parser)(input)?;
+        //dbg!(input);
+        Ok((input, cubes))
+    }
+
+    //"20 green"
+    fn cube_parser(input: &str) -> IResult<&str, Cube> {
+        let (input, (amount, color)) =
+            separated_pair(nom::character::complete::u32, tag(" "), alpha1)(input)?;
+        Ok((input, Cube { amount, color }))
+    }
 
     pub fn get_game_part2(line: &str) -> usize {
         let mut valid_games = vec![];
@@ -54,7 +116,7 @@ pub mod day_two {
 
             let mut the_game = Game::new();
 
-            the_game.id = game_id;
+            the_game.id = game_id.to_string().as_str();
 
             for record in subsets {
                 for colour in record.trim().split(",").into_iter() {
@@ -84,53 +146,18 @@ pub mod day_two {
         result
     }
 
-    pub fn get_game(line: &str) -> usize {
-        let mut valid_games = vec![];
-        for line in line.lines() {
-            let game: Vec<&str> = line.split(":").collect(); // [Game 1] [3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green]
-            let game_id = game[0].split(" "); // [Game] [1 ]
-            let game_id = game_id
-                .last() //[1 ]
-                .unwrap()
-                .trim()
-                .parse::<usize>()
-                .expect("Error parsing game id");
-            let subsets: Vec<&str> = game[1].split(";").collect(); // [3 blue, 4 red] [1 red, 2 green, 6 blue] [2 green]
+    pub fn get_game(input: &str) -> u32 {
+        let games = parse_input(input).unwrap();
 
-            let mut the_game = Game::new();
+        //println!("parsed input {:?}", games);
 
-            the_game.id = game_id;
+        let map: BTreeMap<&str, u32> = BTreeMap::from([("red", 12), ("green", 13), ("blue", 14)]);
 
-            let mut is_valid = true;
-
-            for record in subsets {
-                for colour in record.trim().split(",").into_iter() {
-                    // [3 blue] [ 4 red]
-
-                    let record_game = get_record(colour); // Record object { blue : 3, red: 4}
-
-                    if record_game.blue > BLUE_LIMIT
-                        || record_game.green > GREEN_LIMIT
-                        || record_game.red > RED_LIMIT
-                    {
-                        is_valid = false;
-                        break;
-                    }
-                }
-                //
-                if !is_valid {
-                    break;
-                }
-            }
-
-            if is_valid {
-                valid_games.push(game_id);
-            }
-        }
-
-        //dbg!(&valid_games);
-
-        valid_games.into_iter().sum()
+        games
+            .1
+            .iter()
+            .filter_map(|game| game.is_valid_for_cubes(&map))
+            .sum::<u32>()
     }
 
     fn get_record<'a>(colour: &'a str) -> Record {
